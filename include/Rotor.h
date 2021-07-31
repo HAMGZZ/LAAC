@@ -70,51 +70,65 @@ void Rotor::Callibrate()
 {
     AZ_Stepper.setMaxSpeed(10);
     EL_Stepper.setMaxSpeed(10);
-    //First calibrate AZ
-    while(!digitalRead(az_zero))
+    // AZ & EL calibration loop
+    bool calStatus = false;
+    bool azZero = false;
+    bool elZero = false;
+    bool azTop = false;
+    bool elTop = false;
+    while(!calStatus)
     {
-        AZ_Stepper.move(-1);
-        AZ_Stepper.run();
-    }
-    if(digitalRead(az_zero))
-    {
-        AZ_Stepper.stop();
-        AZ_Stepper.setCurrentPosition(0);
-    }
-    while(!digitalRead(az_oneeighty))
-    {
-        AZ_Stepper.move(1);
-        AZ_Stepper.run();
-    }
-    if(digitalRead(az_oneeighty))
-    {
-        AZ_Stepper.stop();
-        azStepsPerDegree = AZ_Stepper.currentPosition() / 180;
-    }
+        if(!digitalRead(az_zero) && !azZero)
+        {
+            AZ_Stepper.move(-1);
+        }
+        else if(!elZero)
+        {
+            AZ_Stepper.stop();
+            AZ_Stepper.setCurrentPosition(0);
+            azZero = true;
+        }
 
-    //now calibrate EZ
-    while(!digitalRead(el_zero))
-    {
-        EL_Stepper.move(-1);
+        if(!digitalRead(el_zero) && !elZero)
+        {
+            EL_Stepper.move(-1);
+        }
+        else if(!elZero)
+        {
+            EL_Stepper.stop();
+            EL_Stepper.setCurrentPosition(0);
+            elZero = true;
+        }
+
+        if(!digitalRead(az_oneeighty) && azZero)
+        {
+            AZ_Stepper.move(1);
+        }
+        else if(!azTop && azZero)
+        {
+            AZ_Stepper.stop();
+            azStepsPerDegree = AZ_Stepper.currentPosition() / 180;
+        }
+
+        if(!digitalRead(el_ninety) && elZero)
+        {
+            EL_Stepper.move(1);
+        }
+        else if(!elTop && elZero)
+        {
+            EL_Stepper.stop();
+            elStepsPerDegree = EL_Stepper.currentPosition() / 90;
+        }
+
+        if(azZero && azTop && elZero && elTop)
+        {
+            calStatus = true;
+            rxAzEl = home;
+        }
+
+        AZ_Stepper.run();
         EL_Stepper.run();
     }
-    if(digitalRead(el_zero))
-    {
-        EL_Stepper.stop();
-        EL_Stepper.setCurrentPosition(0);
-    }
-    while(!digitalRead(el_ninety))
-    {
-        EL_Stepper.move(1);
-        EL_Stepper.run();
-    }
-    if(digitalRead(el_ninety))
-    {
-        EL_Stepper.stop();
-        elStepsPerDegree = EL_Stepper.currentPosition() / 90;
-    }
-
-    rxAzEl = home;
 
 }
 
