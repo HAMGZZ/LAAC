@@ -33,8 +33,6 @@ private:
 
 public:
     Rotor();
-    
-    
     void UpdatePosition();
     void Callibrate();
     void Home();
@@ -44,6 +42,7 @@ public:
 
 Rotor::Rotor()
 {
+    calState = false;
     rotorLog.Send(INFO, "Initialsing...");
     AZ_Stepper.setMaxSpeed(MAX_SPEED);
     rotorLog.Send(DEBUG, "AZ_Stepper Max speed set");
@@ -71,12 +70,11 @@ void Rotor::Callibrate()
     AZ_Stepper.setMaxSpeed(10);
     EL_Stepper.setMaxSpeed(10);
     // AZ & EL calibration loop
-    bool calStatus = false;
     bool azZero = false;
     bool elZero = false;
     bool azTop = false;
     bool elTop = false;
-    while(!calStatus)
+    while(!calState)
     {
         if(!digitalRead(az_zero) && !azZero)
         {
@@ -122,12 +120,11 @@ void Rotor::Callibrate()
 
         if(azZero && azTop && elZero && elTop)
         {
-            calStatus = true;
+            calState = true;
             rxAzEl = home;
+            AZ_Stepper.setMaxSpeed(MAX_SPEED);
+            EL_Stepper.setMaxSpeed(MAX_SPEED);
         }
-
-        AZ_Stepper.run();
-        EL_Stepper.run();
     }
 
 }
@@ -136,21 +133,24 @@ void moveThread()
 {
     while(1)
     {
-        if(rxAzEl.az != prevRx.az)
+        if(calState)
         {
+            if(rxAzEl.az != prevRx.az)
+            {
 
-            long stepsRequired = rxAzEl.az * azStepsPerDegree;
+                long stepsRequired = rxAzEl.az * azStepsPerDegree;
 
-            rotorLog.Send(DEBUG, "AZ Steps required = ", stepsRequired);
-            AZ_Stepper.moveTo(stepsRequired);
-            prevRx.az = rxAzEl.az;
-        }
-        if(rxAzEl.el != prevRx.el)
-        {
-            long stepsRequired2 = rxAzEl.el*elStepsPerDegree;
-            rotorLog.Send(DEBUG, "EL Steps required = ", stepsRequired2);
-            EL_Stepper.moveTo(stepsRequired2);
-            prevRx.el = rxAzEl.el;
+                rotorLog.Send(DEBUG, "AZ Steps required = ", stepsRequired);
+                AZ_Stepper.moveTo(stepsRequired);
+                prevRx.az = rxAzEl.az;
+            }
+            if(rxAzEl.el != prevRx.el)
+            {
+                long stepsRequired2 = rxAzEl.el*elStepsPerDegree;
+                rotorLog.Send(DEBUG, "EL Steps required = ", stepsRequired2);
+                EL_Stepper.moveTo(stepsRequired2);
+                prevRx.el = rxAzEl.el;
+            }
         }
         EL_Stepper.run();
         txAzEl.el = EL_Stepper.currentPosition() / elStepsPerDegree;

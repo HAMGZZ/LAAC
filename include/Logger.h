@@ -51,7 +51,7 @@ char const *Logger::enum_to_string(Level type) {
    return "";
 }
 
-void Logger::Send(Level level, const char *message, float var1/* = (0.0F)*/, float var2 /*= (0.0F)*/)
+void Logger::Send(Level level, const char *message, float var1 = (0.0F), float var2 = (0.0F))
 {
     if(logSend)
     {

@@ -42,6 +42,12 @@ void healthChecks()
         rootLog.Send(FATAL, "CPU OVERHEAT! TEMP: ", temp);
     }
     rootLog.Send(DEBUG, "Current temp. :", temp);
+    if(second()-ledTimer > LED_OK_INTERVAL)
+    {
+        ledTimer = second(); 
+        digitalWrite(13, !digitalRead(13));
+    }
+
 }
 
 void buttonCheck()
@@ -99,12 +105,10 @@ void loop()
     rxAzEl.el = 0;
     txAzEl.az = 0;
     txAzEl.el = 0;
-    bool inv = 0;
-    long cycleCount = 0;
 
     Communication com1(0);
     Logger mainLoopLog("Main", INFO);    
-    mainLoopLog.Send(INFO, "Starting DEATHBOX");
+    mainLoopLog.Send(INFO, "Starting LAAC - Large Antenna Array Controller - DEATHBOX");
     setSyncProvider(getTeensyTime);
     if (timeStatus()!= timeSet) 
     {
@@ -123,7 +127,7 @@ void loop()
     mainLoopLog.Send(INFO, "Calibrating rotor");
     //rotor.Callibrate();
     mainLoopLog.Send(INFO, "Calibrated rotor");
-    com1.send(  "Rotor controller prompt  Copyright (C) 2020  Lewis Hamilton\n\r"
+    com1.send(  "Rotor controller prompt  Copyright (C) 2021  Lewis Hamilton\n\r"
                 "This program comes with ABSOLUTELY NO WARRANTY; for details type `warranty'.\n\r"
                 "Enter E to turn on console echo and console logging.\n\r");
     logSend = false;
