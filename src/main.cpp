@@ -121,7 +121,8 @@ void loop()
 
     Rotor rotor;
     Screen screen;
-    screen.write("8888", "8888");
+    int testDisplay[2][4] = {{8,8,8,8}, {8,8,8,8}};
+    screen.write(testDisplay[0], testDisplay[1]);
 
     mainLoopLog.Send(INFO, "System Started");
     mainLoopLog.Send(INFO, "Calibrating rotor");
@@ -130,14 +131,16 @@ void loop()
     com1.send(  "Rotor controller prompt  Copyright (C) 2021  Lewis Hamilton\n\r"
                 "This program comes with ABSOLUTELY NO WARRANTY; for details type `warranty'.\n\r"
                 "Enter E to turn on console echo and console logging.\n\r");
+                
+    delay(500);
     logSend = false;
-    delay(100);
     while(1)
     {
         com1.console();
         screen.update();
-        healthChecks();
+        //healthChecks();
         buttonCheck();
+        rotor.UpdatePosition();
     }
 }
 

@@ -80,6 +80,8 @@ void Communication::console()
                 if(echo)
                 {
                     Serial.write(incomingChar);
+                    Serial1.write(incomingChar);
+                    Serial2.write(incomingChar);
                 }
                 break;
             }
@@ -94,7 +96,7 @@ void Communication::console()
     {
         send("\n\r");
         char *tokens;
-        Serial.printf("MESSAGE:  %s", incomingMessage);
+        Serial.printf("MESSAGE:  %s\n\r", incomingMessage);
         tokens = strtok(incomingMessage, " ");
         switch (str2int(tokens))
         {
@@ -182,14 +184,14 @@ void Communication::console()
         {
             while(1)
             {
-                if(Serial.available())
+                if(Serial.available() || Serial1.available() || Serial2.available())
                 {
                     communicationLogger.Send(INFO, "Awake...");
                     break;
                 }
-                digitalWrite(13, HIGH);
-                delay(25);
-                digitalWrite(13, LOW);
+                //digitalWrite(13, HIGH);
+                //delay(25);
+                //digitalWrite(13, LOW);
                 delay(2500);
             }
             break;

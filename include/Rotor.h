@@ -61,8 +61,8 @@ Rotor::Rotor()
     azStepsPerDegree = AZ_START_SPD;
     elStepsPerDegree = EL_START_SPD;
     rotorLog.Send(INFO, "Initialised");
-    rotorLog.Send(INFO, "Starting Thread");
-    threads.addThread(moveThread, 1);
+    //rotorLog.Send(INFO, "Starting Thread");
+    //threads.addThread(moveThread, 1);
 }
 
 void Rotor::Callibrate()
@@ -125,10 +125,14 @@ void Rotor::Callibrate()
             AZ_Stepper.setMaxSpeed(MAX_SPEED);
             EL_Stepper.setMaxSpeed(MAX_SPEED);
         }
+
+        AZ_Stepper.run();
+        EL_Stepper.run();
     }
 
 }
 
+/*
 void moveThread()
 {
     while(1)
@@ -160,8 +164,8 @@ void moveThread()
     }
     
 }
+*/
 
-/*
 void Rotor::UpdatePosition()
 {
     if(rxAzEl.az != prevRx.az)
@@ -184,7 +188,7 @@ void Rotor::UpdatePosition()
         txAzEl.el = EL_Stepper.currentPosition() / elStepsPerDegree;
         AZ_Stepper.run();
         txAzEl.az = AZ_Stepper.currentPosition() / azStepsPerDegree;
-}*/
+}
 
 
 Rotor::~Rotor()
